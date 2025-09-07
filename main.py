@@ -42,7 +42,7 @@ def livingRoomSpawn():
     time.sleep(1)
     print("it looks... beige. this will not do.")
     time.sleep(1)
-    print("your friend is coming in 4 hours and you need to gather:\n-friends/guests\n-decorations\n-a cake\n-presents\n-candles")
+    print("your friend is coming in 8 hours (i know, that's a really long time, but that's how the maths worked out...) and you need to gather:\n-friends/guests\n-decorations\n-a cake\n-presents\n-candles")
     print("type north/east/west/south or n/s/e/w to navigate. type 'help' for other instructions")
     while not exit:
         userChoice = input(f"(hours gone by: {moves}) > ").lower()
