@@ -10,7 +10,7 @@ lost = False
 friends="not got"
 setUp=False
 cakeMoves = 0
-baked=False
+cake = "not made"
 def livingRoomSpawn():
     key="not got"
     exit = False
@@ -52,9 +52,9 @@ def livingRoomSpawn():
             print('do what with the bag??')
         elif "help" in userChoice:
             help()
-        elif "look" in userChoice and "room" in userChoice:
+        elif "look" in userChoice and ("room" in userChoice or "around" in userChoice):
             print("plain walls, (almost) empty table in the middle. not much to see. (you should probably check out that table)")
-            moves+=0.5
+            moves+=0.25
         elif ("look" in userChoice or "check" in userChoice) and "table" in userChoice and not tableChecked:
             print("the house keys lie on the table.")
             tableChecked = True
@@ -97,8 +97,9 @@ def hallway():
     time.sleep(1)
     print("- kitchen")
     time.sleep(1)
-    print("- storage room")
-    time.sleep(1)
+    if "candles" not in bag:
+        print("- storage room")
+        time.sleep(1)
     print("- living room")
     time.sleep(1)
     print("- outside")
@@ -109,9 +110,12 @@ def hallway():
             exit = True
             kitchen()
         elif "storage" in userChoice:
-            moves+=0.25
-            exit = True
-            storage()
+            if "candles" not in bag:
+                moves+=0.25
+                exit = True
+                cat()
+            else:
+                print("you can't go there anymore.")
         elif "living" in userChoice:
             moves+=0.25
             exit = True
@@ -175,7 +179,7 @@ def livingRoom():
     exit = False
     global setUp
     global moves
-    global baked
+    win=False
     print("                              N")
     print("                            W + E")
     print("                              S")
@@ -207,7 +211,7 @@ def livingRoom():
             hallway()
     elif friends == "not got":
         print("you can set this up all by yourself rn (and then go invite friends) or go and get your friends right now to help.")
-    while not exit and moves<15 and not win:
+    while not exit and moves<8 and not win:
         userChoice=input(f"(hours gone by: {moves}) > ").lower()
         if ("check" in userChoice or "look" in userChoice) and "bag" in userChoice:
             bagCheck()
@@ -230,22 +234,25 @@ def livingRoom():
             time.sleep(2)
             print("the living room is ready. the cake is on table (with candles!), the decorations are hung up, the presents are left by the door.")
             time.sleep(2)
-            print("you and your friends are giggling behind a sofa when you hear footsteps...")
+            print("you and your friends are giggling behind a sofa when you hear footsteps.")
             time.sleep(2)
             print("the sound of the key turning silences everyone...")
             time.sleep(2)
             print("   ~~~~~~~~~~~~~~~~~~~")
             print("  |     SURPRISE!!    |")
             print("   ~~~~~~~~~~~~~~~~~~~")
+            print("your friend's face lights up. 'wow,",userName+"! thank you so much :) this is the best surprise i could have asked for!'")
+            time.sleep(2)
+            if cake=="taken":
+                print("they spot the cake, saying, 'oh and you even home-baked a cake for me!'")
             win=True
         else:
             print("sorry! i don't  know what you're saying, try something else?")
     if not exit:
-        if moves<=4 and win:
+        if moves<=8 and win:
             time.sleep(2)
-            print("you hear")
             endWin()
-        if moves>4 and friends=="not got":
+        if moves>8 and friends=="not got":
             print("you hear a key turn in the door.")
             time.sleep(2)
             print("oh no nono!!!")
@@ -257,7 +264,7 @@ def livingRoom():
             print("before you can say anything, you're pulled into a hug.")
             time.sleep(1)
             print("they laugh, 'you tried surprising me, didn't you? this is the best surprise i could have asked for.'")
-            if baked==True:
+            if cake=="taken":
                 print("they spot the cake, saying, 'oh and you even home-baked a cake for me!'")
             time.sleep(2)
             print("you both go to your friends' house to invite them over, and everyone spends the day talking and eating cake.")
@@ -277,16 +284,15 @@ def livingRoom():
             time.sleep(1)
             print("they laugh, 'you all tried surprising me, didn't you? this is the best surprise i could have asked for.'")
             time.sleep(1)
-            if baked==True:
+            if cake=="taken":
                 print("they spot the cake, saying, 'oh and you even home-baked a cake for me!'")
             endWin()
 
 def kitchen():
     global moves
     exit = False
-    cake = "not made"
+    global cake
     global cakeMoves
-    global baked
     print("                              N")
     print("                            W + E")
     print("                              S")
@@ -315,6 +321,10 @@ def kitchen():
         print("this *would* be where you could bake a cake but you've already got a cake so you don't really need to be here")
         exit=True
         hallway()
+    if cake=="in oven" and moves-cakeMoves>2:
+            cake=="burnt"
+            print("your cake burnt. :(")
+            bag.add("cake (burnt...)")
     while not exit:
         userChoice = input(f"(hours gone by: {moves}) > ").lower()
         if ("check" in userChoice or "look" in userChoice) and "bag" in userChoice:
@@ -335,7 +345,6 @@ def kitchen():
             print("you take out the cake")
             moves+=1
             cake="taken"
-            baked=True
             bag.append("cake (yum!)")
             time.sleep(1)
             print("cake acquired, you walk back into the hallway.")
@@ -351,19 +360,76 @@ def kitchen():
             exit=True
             cake="in oven"
             hallway()
+        elif cake=="in oven" and moves-cakeMoves >0.5 and moves-cakeMoves<=2:
+            print("you take out the cake from the oven.")
+            time.sleep(1)
+            print("perfect. you ice it, and carefully place it in your bag (let's pretend this is possible to do without it getting squished)")
+            cake="taken"
+            bag.append("cake (yum!)")
+            time.sleep(2)
+            print("cake acquired, you walk back into the hallway")
+            time.sleep(1)
+            exit=True
+            hallway()
         elif "east" in userChoice:
             print("going without making a cake? ok! make sure to get some from the shops then.")
             exit=True
             hallway()
-        elif cake=="in oven" and moves-cakeMoves>2:
-            cake=="burnt"
-            print("your cake burnt. :(")
-            bag.add("baked cake (burnt...)")
         else:
             print("not sure what you mean... try something else.")
+def cat():
+    global moves
+    exit=False
+    path=""
+    pathValid=False
+    catHiss = 0
+    print("    |\      _,,,---,,_")
+    print("    /,`.-'`'    -.  ;-;;,_")
+    print("   |,4-  ) )-,_. ,\ (  `'-'     ")    
+    print("  '---''(_/--'  `-'\_)  (ART BY FELIX LEE!!)")
+    print("\na cat is sprawled in front of the door of the storage room.")
+    time.sleep(2)
+    print("the only way to get in is to pet her in the right pattern. every wrong move adds 0.25 to the time taken")
+    for loopCount in range(1,5):
+        if loopCount==3:
+            correctAns="right"
+            correctLetter="r"
+            wrongAns="left"
+            wrongLetter="l"
+        else:
+            correctAns="left"
+            correctLetter="l"
+            wrongAns="right"
+            wrongLetter="r"
+        pathValid=False
+        while not pathValid:
+            path = input(f"(hours:{moves}) do you pet behind her left ear or right? ").lower()
+            if wrongAns in path or wrongLetter==path:
+                print("you pet her wrong ear and the cat hisses at you.")
+                time.sleep(1)
+                moves+=0.25
+                catHiss+=1
+                pathValid=True
+            elif ("check" in path or "look" in path) and "bag" in path:
+                bagCheck()
+            elif "help" in path:
+                print("type left/l or right/r")
+            elif correctAns in path or correctLetter==path:
+                print("you pet behind the",correctAns,"ear and the cat purrs contentedly")
+                pathValid=True
+            else:
+                print("i don't understand. sorry.")
+        if catHiss>=2:
+            print("the cat hissed at you TWICE")
+            time.sleep(1)
+            print("i can't believe you'd bother the poor cat like that.")
+            time.sleep(1)
+            print("you lose for doing that.")
+            gameOver()
+    storage()
 def storage():
     global moves
-    exit = False
+    looked=False
     print("                              N")
     print("                            W + E")
     print("                              S")
@@ -371,7 +437,7 @@ def storage():
     print("         |     storage      |   |                |")
     print("         |      [YOU]                            |")
     print("         |                  |   |                |")
-    print("         |_______  _________|   |                |")
+    print("         |__________________|   |                |")
     print("         |                  |   |                |")
     print("         |                  │   |   living room  |")
     print("         |     kitchen      |   |                |")
@@ -385,18 +451,40 @@ def storage():
     print("                 │                         │")
     print("               shop                  guests' house")
     print("you enter the storage room.")
-    while not exit:
+    while "candles" not in bag:
         userChoice=input(f"(hours gone by: {moves}) > ").lower()
         if ("check" in userChoice or "look" in userChoice) and "bag" in userChoice:
-                bagCheck()
+            bagCheck()
         elif "bag" in userChoice:
-                print('do what with the bag??')
+            print('do what with the bag??')
         elif "help" in userChoice:
-                help()
+            help()
+        elif "look" in userChoice and "harder" in userChoice:
+            print("oh! you found some candles!")
+            moves+=0.5
+            looked=True
+        elif "look" in userChoice:
+            print("hmmm... bags, old newspapers, duct tape.... (look harder?)")
+        elif "candle" in userChoice and not looked:
+            print("? what candles? you haven't even found them...")
+        elif "candle" in userChoice and looked:
+            print("you get the candles and put them in your bag")
+            bag.append("candles")
+            moves+=0.25
+        elif ("east" in userChoice or "leave" in userChoice or "e"== userChoice) and "candles" not in bag and warning==0:
+            print("don't leave... it's important to pick something up from here before you go...")
+            warning+=1
+        elif ("east" in userChoice or "leave" in userChoice or "e"== userChoice) and "candles" not in bag:
+            print("nope. you can't leave. try looking around.")
+            warning+=1
+        else:
+            print("i don't know what you said. try again :(")
+    hallway()
 def shop():
     global moves
     exit = False
     candleCheck = 0
+    global cake
     print("you enter the corner shop")
     time.sleep(1)
     print("there's cake and decoration and wonderful presents!") 
@@ -425,7 +513,7 @@ def shop():
             print("maybe ask the shopkeeper (or keep trying)")
             candleCheck+=0.25
         elif "look" in userChoice and "candle" in userChoice and candleCheck>1:
-            moves+=1
+            moves+=0.25
             print("ok, you're wasting time now. either ask the shopkeeper or give up trying to find candles.")
         elif "ask" in userChoice:
             moves+=0.25
@@ -442,12 +530,14 @@ def shop():
             bag.append("deco")
         elif "buy" in userChoice and "deco" in userChoice:
             print("you already have deco!")
-        elif "cake" in userChoice and "buy" in userChoice and "cake (yum!)" not in bag:
+        elif "cake" in userChoice and "buy" in userChoice and "cake (yum!)" not in bag and cake!="in oven":
             moves+=0.25
             print("you buy a cake. you (carefully) put it into your bag")
             bag.append("cake (yum!)")
-        elif "cake" in userChoice and "buy" in userChoice:
+        elif "cake" in userChoice and "buy" in userChoice and "cake (yum!)" in bag:
             print("you already have cake")
+        elif "cake" in userChoice and "buy" in userChoice and cake=="in oven":
+            print("you have a cake in the oven.")
         elif "buy" in userChoice:
             print("buy what?")
         elif "leave" in userChoice or "north" in userChoice or "n"== userChoice:
@@ -471,8 +561,6 @@ def bagCheck():
         print("you haven't got anything in your bag!")
 def help():
     global instructions
-    global moves
-    print("you've spent",moves, "moves")
     print("the instructions i know are:")
     for instruction in instructions:
         print("-",instruction)
@@ -482,6 +570,7 @@ def gameOver():
     print(" ~~~~~~~~~~~ ")
     print("| GAME OVER |")
     print(" ~~~~~~~~~~~ ")
+    quit()
 def endWin():
     print(" ~~~~~~~~~~ ")
     print("| YOU WIN! |")
