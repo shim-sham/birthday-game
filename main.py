@@ -3,8 +3,8 @@ userName=""
 bag = []
 moves = 0
 instructions = [
-    "get", "grab", "pick", "take", "look", "check", "north", "n", "south", "s",
-    "west", "w", "east", "e"
+    "get", "grab", "pick", "take", "look [around/room/object]", "check", "north", "n", "south", "s",
+    "west", "w", "east", "e","buy","set [up]"
 ]
 lost = False
 friends="not got"
@@ -180,6 +180,7 @@ def livingRoom():
     global setUp
     global moves
     win=False
+    global friends
     print("                              N")
     print("                            W + E")
     print("                              S")
@@ -226,8 +227,8 @@ def livingRoom():
         elif "set" in userChoice and setUp:
             print("you've already set up! go and invite friends")
         elif "set" in userChoice and friends=="not got":
-            print("it takes you a long time to get the stuff set up... (let's hope you didn't spend too much time on other stuff)")
-            moves+=4
+            print("it takes you 2 hours to get the stuff set up... (let's hope you didn't spend too much time on other stuff)")
+            moves+=2
             setUp=True
         elif "set" in userChoice and friends == "got":
             print("you set up everything quickly with your friends!")
@@ -245,6 +246,7 @@ def livingRoom():
             time.sleep(2)
             if cake=="taken":
                 print("they spot the cake, saying, 'oh and you even home-baked a cake for me!'")
+            print("everything went swimmingly and you all spend the day talking and eating cake.")
             win=True
         else:
             print("sorry! i don't  know what you're saying, try something else?")
@@ -271,12 +273,12 @@ def livingRoom():
             time.sleep(2)
             print("it wasn't perfect, but that doesn't matter when your friends are with you :)")
             endWin()
-        elif moves>4:
+        elif moves>8:
             print("you hear a key turn in the door.")
             time.sleep(2)
             print("oh no nono!!!")
             time.sleep(1)
-            print("the decoration are still being put up, the candles aren't on the cake yet, and the presents aren't wrapped!")
+            print("the decorations are still being put up, the candles aren't on the cake yet, and the presents aren't wrapped!")
             time.sleep(3)
             print("your birthday friend walks in, sees the mess that you've made, and freezes.")
             time.sleep(2)
@@ -286,6 +288,8 @@ def livingRoom():
             time.sleep(1)
             if cake=="taken":
                 print("they spot the cake, saying, 'oh and you even home-baked a cake for me!'")
+            time.sleep(2)
+            print("it wasn't perfect, but that doesn't matter when your friends are with you :)")
             endWin()
 
 def kitchen():
@@ -379,7 +383,6 @@ def kitchen():
             print("not sure what you mean... try something else.")
 def cat():
     global moves
-    exit=False
     path=""
     pathValid=False
     catHiss = 0
@@ -549,7 +552,32 @@ def shop():
 def house():
     global moves
     exit = False
-    print('house')
+    global friends
+    print("you ring the doorbell of your friends' house")
+    time.sleep(1)
+    print("you wait... where are they??")
+    while not exit:
+        userChoice=input(f"(hours gone by: {moves}) > ").lower()
+        if ("check" in userChoice or "look" in userChoice) and "bag" in userChoice:
+            bagCheck()
+        elif "bag" in userChoice:
+                print('do what with the bag??')
+        elif "help" in userChoice:
+            help()
+        elif "look" in userChoice:
+            print("you peek through the window. you can't see anyone inside")
+        elif ("wait" in userChoice or "knock" in userChoice or "ring" in userChoice) and not setUp:
+            print("the door swings open and your friends cheerfully agree to come to the party! they'll help you set up as well.")
+            moves+=0.25
+            friends="got"
+        elif("leave" in userChoice or "north" in userChoice or "n"==userChoice) and friends=="not got":
+            print("dont leave! try waiting, or knocking again")
+        elif("leave" in userChoice or "north" in userChoice or "n"==userChoice):
+            exit=True
+            moves+=0.5
+            outside()
+        else:
+            print("not sure what you mean... try again?")
 
 def bagCheck():
     bagCount=1
